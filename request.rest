@@ -1,0 +1,63 @@
+### create user admin
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+    "name": "bintang",
+    "email": "bintang@gmail.com",
+    "password": "123",
+    "confPassword": "123",
+    "role": "admin"
+}
+
+### create user super admin
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+    "name": "superadmin",
+    "email": "superadmin@gmail.com",
+    "password": "123",
+    "confPassword": "123",
+    "role": "superadmin"
+}
+
+###
+POST http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+    "email": "bintang@gmail.com",
+    "password": "123"
+}
+
+###
+POST http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+    "email": "superadmin@gmail.com",
+    "password": "123"
+}
+
+### who am i
+GET http://localhost:3000/me
+Content-Type: application/json
+
+###
+GET http://localhost:3000/api/users/
+Content-Type: application/json
+
+{
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhODI1ZGFjNy0zMmM5LTRlMTctOTlhMS04NjIzOTI5YTFhZDciLCJuYW1lIjoiYmludGFuZyIsImVtYWlsIjoiYmludGFuZ0BnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MTYzOTU1MzksImV4cCI6MTcxNjQ4MTkzOX0.hWUDmLijGkkxqO2Z0Phlsd0cR6jn5Mj9MhzIWXDiWsM"
+}
+
+###
+GET http://localhost:3000/api/token/
+Content-Type: application/json
+
+{
+    
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVXVpZCI6IjE0ZmEzNzE3LWViZjYtNDZjMC05NDcxLWMzNjlmYTYwNjhhOSIsIm5hbWUiOiJzdXBlcmFkbWluIiwiZW1haWwiOiJzdXBlcmFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcmFkbWluIiwiaWF0IjoxNzE2ODE1OTE4LCJleHAiOjE3MTY5MDIzMTh9.CiT7gUbDXpmGUpqLuodqkOlLbMl3huO5QYYh3kxJ-oo"
+    }
+
