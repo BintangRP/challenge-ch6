@@ -6,13 +6,13 @@ import { superAdminOnly, verifyUser } from "../middleware/AuthUser.js";
 
 const router = express.Router();
 
-router.get('/api/users', verifyToken, verifyUser, getAllUsers); // get all user data
+router.get('/api/users', verifyToken, verifyUser, superAdminOnly, getAllUsers); // get all user data
 router.post('/api/users', Register);  // create user
-router.put("/api/users/:id", verifyToken, verifyUser, superAdminOnly, updateUser); // update user
-router.delete("/api/users/:id", verifyToken, verifyUser, superAdminOnly, deleteUser); // delete user
+router.put("/api/users/:uuid", verifyToken, verifyUser, superAdminOnly, updateUser); // update user
+router.delete("/api/users/:uuid", verifyToken, verifyUser, superAdminOnly, deleteUser); // delete user
 
 router.post('/api/login', Login); // login 
-router.get("/me", verifyToken, verifyUser, Me); // whoami
+router.get("/me", verifyToken, Me); // whoami
 router.get('/api/token', refreshToken); // get refresh token
 router.delete('/api/logout', verifyToken, verifyUser, Logout);
 

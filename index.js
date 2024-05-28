@@ -22,10 +22,10 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000", }));
 try {
     await db.authenticate();
     console.log('DB Connected Successfully');
-    (async () => {
-        await db.sync();
-        await Cars.sync();
-    })();
+    // (async () => {
+    //     await db.sync();
+    //     await Cars.sync();
+    // })();
 } catch (error) {
     console.log(error.message);
 }

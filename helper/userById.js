@@ -3,11 +3,12 @@ import Users from "../models/UserModel.js";
 // get user by id
 export const getUserByUuid = async (userUuid) => {
     try {
-        return await Users.findOne({
+        await Users.findOne({
             where: {
                 uuid: userUuid,
             }
         });
+
     } catch (error) {
         console.log(error.message);
     }

@@ -9,7 +9,7 @@ export const verifyUser = async (req, res, next) => {
         }
     });
 
-    if (!user) return res.status(404).json({ msg: 'user tidak ditemukan' });
+    if (!user) return res.status(404).json({ msg: 'user tidak ditemukan pada verify' });
     req.userUuid = user.uuid;
     req.role = user.role;
 
@@ -53,12 +53,12 @@ export const superAdminOnly = async (req, res, next) => {
 
     const user = await Users.findOne({
         where: {
-            uuid: req.body.userUuid
+            uuid: req.user.uuid
         }
     });
+    if (!user) return res.status(404).json({ msg: 'user tidak ditemukan' });
 
     if (user.role !== 'superadmin') return res.status(403).json({ msg: 'access denied' });
-    if (!user) return res.status(404).json({ msg: 'user tidak ditemukan' });
 
     next();
 }

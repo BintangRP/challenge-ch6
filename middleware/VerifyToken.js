@@ -13,7 +13,7 @@ export const verifyToken = async (req, res, next) => {
             }
         });
 
-        if (!req.user) return res.status(400).json({ msg: "User tidak ditemukan" })
+        if (!req.user) return res.status(400).json({ msg: "User tidak ditemukan pada token" })
 
         // console.log(req.user.uuid);
         console.log("verify token berhasil");

@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Users from "../models/UserModel.js";
+import { getUserByUuid } from "../helper/userById.js";
 
 
 export const getAllUsers = async (req, res) => {
@@ -46,22 +47,29 @@ export const Register = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-    const user = getUserById(req.userUuid);
-
-    if (!user) return res.status(401).json({ msg: "User tidak ditemukan" });
-
-    const { name, email, password, confPassword, role } = req.body;
-
-    if (user.role == 'admin' && req.params.role == 'superadmin') return res.status(401).json({ msg: "Access denied" });
-    if (user.role == 'member' && (req.params.role == 'superadmin' || req.params.role == 'admin')) return res.status(401).json({ msg: "Access denied" });
-
-    if (password != confPassword) return res.status(400).json({ message: "Password tidak sesuai" });
-
-    const salt = await bcrypt.genSaltSync();
-    const hashPassword = await bcrypt.hashSync(password, salt);
 
     try {
-        const response = await Users.update(
+        // const user = getUserByUuid(req.user.uuid);
+        const user = await Users.findOne({
+            where: {
+                uuid: req.params.uuid
+            }
+        });
+
+        if (!user) return res.status(401).json({ msg: "User tidak ditemukan" });
+
+        const { name, email, password, confPassword, role } = req.body;
+
+        if (user.role == 'admin' && req.body.role == 'superadmin') return res.status(401).json({ msg: "Access denied" });
+        if (user.role == 'member' && (req.body.role == 'superadmin' || req.body.role == 'admin')) return res.status(401).json({ msg: "Access denied" });
+
+        if (password != confPassword) return res.status(400).json({ message: "Password tidak sesuai" });
+
+        const salt = await bcrypt.genSalt();
+        const hashPassword = await bcrypt.hash(password, salt);
+
+        // Update user in the database
+        await Users.update(
             {
                 name: name,
                 email: email,
@@ -74,17 +82,25 @@ export const updateUser = async (req, res) => {
                 },
             }
         );
-        res.status(200).json({ msg: "User Updated", data: response });
+
+        res.status(200).json({ msg: "User Updated", data: user });
+
     } catch (error) {
-        res.status(400).json({ msg: error.message });
+        res.status(400).json({ msg: "error", data: error.message });
     }
+
 };
 
 export const deleteUser = async (req, res) => {
-    const user = getUserById(req.userUuid);
+    console.log(req.params);
+    const user = await Users.findOne({
+        where: {
+            uuid: req.params.uuid
+        }
+    });
 
     if (!user) return res.status(404).json({ msg: "User not found" });
-    if (user.role != 'superadmin') return res.status(401).json({ msg: "Access denied" });
+    if (req.user.role != 'superadmin') return res.status(401).json({ msg: "Access denied" });
 
     try {
         const response = await Users.destroy({
@@ -148,7 +164,7 @@ export const Login = async (req, res) => {
 }
 
 export const Me = async (req, res) => {
-    console.log("Me uuid: ", req.user.uuid);
+    console.log("My uuid: ", req.user.uuid);
     const user = await Users.findOne({
         attributes: ['uuid', 'name', 'email', 'role', 'refresh_token'],
         where: {
@@ -180,6 +196,7 @@ export const Logout = async (req, res) => {
             }
         });
         res.clearCookie('refreshToken');
+        log(req.user);
         return res.status(200).json({ msg: "logout berhasil" });
     } catch (error) {
         return res.status(500).json({ msg: error.message });
