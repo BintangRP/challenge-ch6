@@ -3,39 +3,72 @@ import { getUserByUuid } from "../helper/userById.js";
 import { Cars } from "../models/CarModel.js";
 import { Users } from "../models/UserModel.js";
 import { Op, where } from "sequelize";
+import path from "path";
+import fs from "fs";
+
+const saveImg = (image) => {
+    if (!image || !image.name || !image.data) {
+        throw new Error("Invalid image object");
+    }
+
+    const imgPath = path.join(__dirname, "../public/assets", image.name);
+    fs.writeFileSync(imgPath, image.data);
+    return `../public/assets/${image.name}`;
+};
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 export const getCars = async (req, res) => {
     try {
         let response;
-        if (req.role == 'superadmin') {
+        if (req.role == 'superadmin' || req.role == 'admin') {
             response = await Cars.findAll({
                 attributes: ['uuid', 'name', 'price', 'img', 'size', 'createdBy', 'updatedBy', 'deletedBy'],
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['uuid', 'name', 'email', 'role']
-                }]
-            });
-        } else if (req.role == 'admin') {
-            response = await Cars.findAll({
-                attributes: ['uuid', 'name', 'price', 'img', 'size', 'createdBy', 'updatedBy', 'deletedBy'],
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['uuid', 'name', 'email', 'role']
-                }]
+                include: [
+                    {
+                        model: Users,
+                        as: "createdByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "updatedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "deletedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                ],
             });
         } else {
             response = await Cars.findAll({
                 attributes: ['uuid', 'name', 'price', 'img', 'size'],
                 where: {
                     userUuid: req.userUuid,
+                    is_deleted: 0
                 },
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['name', 'email', 'role']
-                }]
+                include: [
+                    {
+                        model: Users,
+                        as: "createdByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "updatedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "deletedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                ],
             });
         }
-        res.status(200).json({ data: response });
+        res.status(200).json({ msg: "Fetched data", data: response });
     } catch (error) {
         res.status(500).json({ msg: error.message });
     }
@@ -62,10 +95,23 @@ export const getCarByUuid = async (req, res) => {
                 where: {
                     uuid: car.uuid
                 },
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['name', 'email']
-                }]
+                include: [
+                    {
+                        model: Users,
+                        as: "createdByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "updatedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "deletedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                ],
             });
         } else {
             response = await Cars.findOne({
@@ -73,10 +119,23 @@ export const getCarByUuid = async (req, res) => {
                 where: {
                     [Op.and]: [{ id: product.id }, { userUuid: req.user.uuid }]
                 },
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['name', 'email']
-                }]
+                include: [
+                    {
+                        model: Users,
+                        as: "createdByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "updatedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "deletedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                ],
             });
         }
         res.status(200).json({ data: response });
@@ -87,7 +146,7 @@ export const getCarByUuid = async (req, res) => {
 
 export const createCar = async (req, res) => {
     const { name, price, size } = req.body;
-    const img = req.file ? req.file.filename : '';
+    const img = req.file ? req.file.path : '';
 
     try {
         const response = await Cars.create({
@@ -119,11 +178,12 @@ export const updateCar = async (req, res) => {
 
         console.log(req.body);
         const { name, price, size } = req.body;
-        const img = req.file ? req.file.filename : req.body.oldImg;
+        const img = req.file ? req.file.path : req.body.oldImg;
 
         let response;
         if (req.role === 'superadmin' || req.role === 'admin') {
-            console.log("super admin atau admin");
+            // console.log("super admin atau admin");
+
             await Cars.update({
                 name: name,
                 price: price,
@@ -141,14 +201,27 @@ export const updateCar = async (req, res) => {
                 where: {
                     uuid: car.uuid
                 },
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['name', 'email']
-                }]
+                include: [
+                    {
+                        model: Users,
+                        as: "createdByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "updatedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "deletedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                ],
             });
 
         } else {
-            console.log("member");
+            // console.log("member");
 
             if (req.user.uuid !== car.userUuid) return res.status(403).json({ msg: "Car tidak ditemukan" });
 
@@ -169,10 +242,23 @@ export const updateCar = async (req, res) => {
                 where: {
                     [Op.and]: [{ id: product.id }, { userUuid: req.user.uuid }]
                 },
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['name', 'email']
-                }]
+                include: [
+                    {
+                        model: Users,
+                        as: "createdByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "updatedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "deletedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                ],
             });
 
         }
@@ -208,10 +294,23 @@ export const deleteCar = async (req, res) => {
                 where: {
                     uuid: car.uuid
                 },
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['name', 'email']
-                }]
+                include: [
+                    {
+                        model: Users,
+                        as: "createdByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "updatedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "deletedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["uuid", "name", "email", "role"],
+                    },
+                ],
             });
 
         } else {
@@ -228,10 +327,23 @@ export const deleteCar = async (req, res) => {
                 where: {
                     [Op.and]: [{ id: product.id }, { userUuid: req.user.uuid }]
                 },
-                include: [{
-                    model: Users, // terdapat relasi cars ke users
-                    attributes: ['name', 'email']
-                }]
+                include: [
+                    {
+                        model: Users,
+                        as: "createdByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "updatedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                    {
+                        model: Users,
+                        as: "deletedByUser", // Gunakan alias yang telah ditentukan
+                        attributes: ["name", "email", "role"],
+                    },
+                ],
             });
         }
         res.status(200).json({ msg: "Car deleted successfully", data: response });

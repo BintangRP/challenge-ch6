@@ -68,5 +68,8 @@ export const Cars = db.define('cars', {
 
 Users.hasMany(Cars, { foreignKey: 'userUuid' });
 Cars.belongsTo(Users, { foreignKey: 'userUuid' });
+Cars.belongsTo(Users, { foreignKey: "createdBy", as: "createdByUser" });
+Cars.belongsTo(Users, { foreignKey: "updatedBy", as: "updatedByUser" });
+Cars.belongsTo(Users, { foreignKey: "deletedBy", as: "deletedByUser" });
 
 export default Cars;
