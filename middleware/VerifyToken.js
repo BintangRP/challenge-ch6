@@ -5,13 +5,14 @@ export const verifyToken = async (req, res, next) => {
     try {
         const bearerToken = req.headers.authorization;
         const token = bearerToken.split(" ")[1]
-        const tokenPayload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)
+        const tokenPayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
         // console.log(tokenPayload);
         req.user = await Users.findOne({
             where: {
                 uuid: tokenPayload.userUuid
             }
         });
+        console.log(req.user);
 
         if (!req.user) return res.status(400).json({ msg: "User tidak ditemukan pada token" })
 
@@ -22,4 +23,5 @@ export const verifyToken = async (req, res, next) => {
         res.status(401).json({ msg: "Unauthorized: you aren't log on" })
     }
 }
+
 

@@ -62,4 +62,3 @@ export const superAdminOnly = async (req, res, next) => {
 
     next();
 }
-

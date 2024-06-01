@@ -6,6 +6,8 @@ import { Op, where } from "sequelize";
 import path from "path";
 import fs from "fs";
 
+
+
 const saveImg = (image) => {
     if (!image || !image.name || !image.data) {
         throw new Error("Invalid image object");
@@ -23,7 +25,7 @@ export const getCars = async (req, res) => {
         let response;
         if (req.role == 'superadmin' || req.role == 'admin') {
             response = await Cars.findAll({
-                attributes: ['uuid', 'name', 'price', 'img', 'size', 'createdBy', 'updatedBy', 'deletedBy'],
+                attributes: ['uuid', 'name', 'price', 'img', 'size', 'createdBy', 'updatedBy', 'deletedBy', 'is_deleted'],
                 include: [
                     {
                         model: Users,
@@ -91,7 +93,7 @@ export const getCarByUuid = async (req, res) => {
         let response;
         if (req.role === 'superadmin' || req.role === 'admin') {
             response = await Cars.findOne({
-                attributes: ['uuid', 'name', 'price', 'img', 'size', 'createdBy', 'updatedBy', 'deletedBy'],
+                attributes: ['uuid', 'name', 'price', 'img', 'size', 'createdBy', 'updatedBy', 'deletedBy', 'is_deleted'],
                 where: {
                     uuid: car.uuid
                 },
@@ -145,6 +147,7 @@ export const getCarByUuid = async (req, res) => {
 }
 
 export const createCar = async (req, res) => {
+
     const { name, price, size } = req.body;
     const img = req.file ? req.file.path : '';
 

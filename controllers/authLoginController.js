@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Users from "../models/UserModel.js";
-import { getUserByUuid } from "../helper/userById.js";
-
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -17,11 +15,25 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
-export const Register = async (req, res) => {
+export const RegisterAdmins = async (req, res) => {
     try {
-        console.log(req.body);
-        const { name, email, password, confPassword, role } = req.body;
-        // console.log(req.body);
+        // validasi tidak bisa melakukan operasi ini
+        const tokenCredential = req.user
+        if (tokenCredential.role === "member") {
+            return res.status(403).json({
+                success: false,
+                message: "hanya role superadmin dan admin yang dapat mengakses",
+            });
+        }
+        const { name, email, password, confPassword } = req.body;
+
+        const emailExisted = await Users.findOne({
+            where: {
+                email: email,
+            },
+        });
+
+        if (emailExisted) return res.status(400).json({ message: "Email ada" });
 
         if (password != confPassword) return res.status(400).json({ message: "Password tidak sesuai" });
 
@@ -30,11 +42,12 @@ export const Register = async (req, res) => {
 
 
         try {
+
             const response = await Users.create({
                 name: name,
                 email: email,
                 password: hashPassword,
-                role: role
+                role: 'admin'
             });
 
             return res.status(201).json({ msg: "Users created successfully", data: response })
@@ -45,6 +58,81 @@ export const Register = async (req, res) => {
         res.status(500).json({ msg: error.message });
     }
 };
+
+export const RegisterSuperAdmins = async (req, res) => {
+    try {
+
+        const { name, email, password, confPassword, role } = req.body;
+
+        const emailExisted = await Users.findOne({
+            where: {
+                email: email,
+            },
+        });
+
+        if (emailExisted) return res.status(400).json({ message: "Email ada" });
+
+        if (password != confPassword) return res.status(400).json({ message: "Password tidak sesuai" });
+
+        const salt = await bcrypt.genSaltSync();
+        const hashPassword = await bcrypt.hashSync(password, salt);
+
+        try {
+
+            const response = await Users.create({
+                name: name,
+                email: email,
+                password: hashPassword,
+                role: 'superadmin'
+            });
+
+            return res.status(201).json({ msg: "Superadmin created successfully", data: response })
+        } catch (error) {
+            res.status(400).json({ msg: error.message });
+        }
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
+
+export const RegisterMember = async (req, res) => {
+    try {
+
+        const { name, email, password, confPassword, role } = req.body;
+        // console.log(req.body);
+
+        const emailExisted = await Users.findOne({
+            where: {
+                email: email,
+            },
+        });
+
+        if (emailExisted) return res.status(400).json({ message: "Email sudah ada" });
+
+        if (password != confPassword) return res.status(400).json({ message: "Password tidak sesuai" });
+
+        const salt = await bcrypt.genSaltSync();
+        const hashPassword = await bcrypt.hashSync(password, salt);
+
+        try {
+
+            const response = await Users.create({
+                name: name,
+                email: email,
+                password: hashPassword,
+                role: 'member'
+            });
+
+            return res.status(201).json({ msg: "Users created successfully", data: response })
+        } catch (error) {
+            res.status(400).json({ msg: error.message });
+        }
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
 
 export const updateUser = async (req, res) => {
 
@@ -90,6 +178,7 @@ export const updateUser = async (req, res) => {
     }
 
 };
+
 
 export const deleteUser = async (req, res) => {
     console.log(req.params);
@@ -201,4 +290,16 @@ export const Logout = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ msg: error.message });
     }
+}
+
+export default {
+    Login,
+    Logout,
+    Me,
+    RegisterAdmins,
+    RegisterMember,
+    RegisterSuperAdmins,
+    deleteUser,
+    getAllUsers,
+    updateUser
 }

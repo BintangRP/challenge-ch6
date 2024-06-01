@@ -5,9 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import loginRoute from "./routes/loginRoute.js";
 import carRoute from "./routes/carRoute.js";
-import session from "express-session";
-import connectSessionSequelize from "connect-session-sequelize";
-import Cars from "./models/CarModel.js";
+
 
 dotenv.config();
 
@@ -22,10 +20,10 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000", }));
 try {
     await db.authenticate();
     console.log('DB Connected Successfully');
-    // (async () => {
-    //     await db.sync();
-    //     await Cars.sync();
-    // })();
+
+    // await db.sync();
+    // await Cars.sync()
+
 } catch (error) {
     console.log(error.message);
 }

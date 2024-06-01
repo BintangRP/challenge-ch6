@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize";
+// const Sequelize = require('sequelize');
 
 export const db = new Sequelize('ch6_login_auth', 'root', '', {
     host: "localhost",
