@@ -20,7 +20,7 @@ export const verifyToken = async (req, res, next) => {
         console.log("verify token berhasil");
         next();
     } catch (err) {
-        res.status(401).json({ msg: "Unauthorized: you aren't log on" })
+        res.status(401).json({ msg: "Unauthorized: you aren't log on", data: err })
     }
 }
 

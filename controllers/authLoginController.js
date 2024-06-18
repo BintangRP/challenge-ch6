@@ -62,7 +62,7 @@ export const RegisterAdmins = async (req, res) => {
 export const RegisterSuperAdmins = async (req, res) => {
     try {
 
-        const { name, email, password, confPassword, role } = req.body;
+        const { name, email, password, confPassword } = req.body;
 
         const emailExisted = await Users.findOne({
             where: {
@@ -99,7 +99,7 @@ export const RegisterSuperAdmins = async (req, res) => {
 export const RegisterMember = async (req, res) => {
     try {
 
-        const { name, email, password, confPassword, role } = req.body;
+        const { name, email, password, confPassword } = req.body;
         // console.log(req.body);
 
         const emailExisted = await Users.findOne({
@@ -285,7 +285,7 @@ export const Logout = async (req, res) => {
             }
         });
         res.clearCookie('refreshToken');
-        log(req.user);
+        console.log(req.user);
         return res.status(200).json({ msg: "logout berhasil" });
     } catch (error) {
         return res.status(500).json({ msg: error.message });

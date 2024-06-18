@@ -2,23 +2,23 @@ import deleteImg from "../helper/saveImg.js";
 import { getUserByUuid } from "../helper/userById.js";
 import { Cars } from "../models/CarModel.js";
 import { Users } from "../models/UserModel.js";
-import { Op, where } from "sequelize";
-import path from "path";
-import fs from "fs";
+import { Op } from "sequelize";
+// import path from "path";
+// import fs from "fs";
 
 
 
-const saveImg = (image) => {
-    if (!image || !image.name || !image.data) {
-        throw new Error("Invalid image object");
-    }
+// const saveImg = (image) => {
+//     if (!image || !image.name || !image.data) {
+//         throw new Error("Invalid image object");
+//     }
 
-    const imgPath = path.join(__dirname, "../public/assets", image.name);
-    fs.writeFileSync(imgPath, image.data);
-    return `../public/assets/${image.name}`;
-};
+//     const imgPath = path.join(__dirname, "../public/assets", image.name);
+//     fs.writeFileSync(imgPath, image.data);
+//     return `../public/assets/${image.name}`;
+// };
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+// const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 export const getCars = async (req, res) => {
     try {
@@ -119,7 +119,7 @@ export const getCarByUuid = async (req, res) => {
             response = await Cars.findOne({
                 attributes: ['uuid', 'name', 'price'],
                 where: {
-                    [Op.and]: [{ id: product.id }, { userUuid: req.user.uuid }]
+                    [Op.and]: [{ uuid: car.uuid }, { userUuid: req.user.uuid }]
                 },
                 include: [
                     {
@@ -243,7 +243,7 @@ export const updateCar = async (req, res) => {
             response = await Cars.findOne({
                 attributes: ['uuid', 'name', 'price'],
                 where: {
-                    [Op.and]: [{ id: product.id }, { userUuid: req.user.uuid }]
+                    [Op.and]: [{ uuid: car.uuid }, { userUuid: req.user.uuid }]
                 },
                 include: [
                     {
@@ -328,7 +328,7 @@ export const deleteCar = async (req, res) => {
             response = await Cars.findOne({
                 attributes: ['uuid', 'name', 'price'],
                 where: {
-                    [Op.and]: [{ id: product.id }, { userUuid: req.user.uuid }]
+                    [Op.and]: [{ uuid: car.uuid }, { userUuid: req.user.uuid }]
                 },
                 include: [
                     {

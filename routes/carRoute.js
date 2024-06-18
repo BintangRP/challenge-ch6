@@ -1,5 +1,5 @@
 import express from 'express';
-import { verifyUser, adminOnly, superAdminOnly, adminSuperAdminOnly } from '../middleware/AuthUser.js';
+import { verifyUser, adminSuperAdminOnly } from '../middleware/AuthUser.js';
 import { getCars, getCarByUuid, createCar, updateCar, deleteCar } from '../controllers/CarController.js';
 import multer from 'multer';
 import { verifyToken } from '../middleware/VerifyToken.js';

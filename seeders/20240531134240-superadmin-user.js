@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up(queryInterface) {
     const hashedPassword = await bcrypt.hash(
       '123',
       await bcrypt.genSalt(10)
@@ -32,7 +32,7 @@ module.exports = {
     }], {});
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     /**
      * Add commands to revert seed here.
      *
